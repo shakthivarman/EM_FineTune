@@ -1,0 +1,66 @@
+# Production configuration for serious training
+
+model:
+  name: "sentence-transformers/all-mpnet-base-v2"
+  max_length: 512
+  pooling_mode: "mean"
+  normalize_embeddings: true
+
+training:
+  loss_function: "MultipleNegativesRankingLoss"
+  epochs: 10
+  batch_size: 64  # Larger batch size for production
+  learning_rate: 2e-5
+  weight_decay: 0.01
+  warmup_steps: 2000
+  max_grad_norm: 1.0
+  
+optimization:
+  use_lora: true
+  mixed_precision: "bf16"
+  gradient_checkpointing: true
+  
+lora:
+  r: 64  # High rank for maximum performance
+  lora_alpha: 128
+  target_modules: ["query", "key", "value", "dense"]
+  lora_dropout: 0.1
+  bias: "none"
+
+data:
+  format: "pairs"
+  negative_sampling: true
+  num_negatives: 5  # Many negatives for robust training
+  val_split: 0.1
+
+logging:
+  eval_steps: 1000
+  save_steps: 2000
+  logging_steps: 100
+  use_wandb: true
+  wandb_project: "embedding-production"
+  log_level: "INFO"
+
+output:
+  dir: "./output/production"
+
+loss_kwargs:
+  MultipleNegativesRankingLoss:
+    scale: 30.0
+
+hardware:
+  seed: 42
+  num_workers: 16  # More workers for faster data loading
+
+# Additional production settings
+checkpointing:
+  save_total_limit: 3  # Keep only 3 checkpoints
+  save_on_each_node: false
+
+evaluation:
+  metrics: ["similarity", "retrieval", "classification"]
+  eval_batch_size: 128
+  
+distributed:
+  backend: "nccl"  # For multi-GPU training
+  find_unused_parameters: false

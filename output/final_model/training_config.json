@@ -1,0 +1,13 @@
+{
+  "model_name": "sentence-transformers/all-MiniLM-L6-v2",
+  "loss_function": "MultipleNegativesRankingLoss",
+  "loss_kwargs": {},
+  "use_lora": true,
+  "lora_config": null,
+  "mixed_precision": "fp16",
+  "gradient_checkpointing": true,
+  "max_length": 512,
+  "pooling_mode": "mean",
+  "normalize_embeddings": true,
+  "seed": 42
+}
